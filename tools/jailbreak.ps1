@@ -325,6 +325,24 @@ if (-not $Check) {
             } else { Did 'dsh-purge 已无 client 字段' }
         } else { Did '未安装 dsh-purge，跳过' }
     }
+
+    # system-prompt 覆盖与安装方式无关：管理器装包时也要写，否则官方身份段只能靠运行时剥
+    if ($layout -eq 'package') {
+        Step '2/3 profile 配置'
+        $patch = Get-Content -LiteralPath $patchFile -Raw
+        if ($patch -match 'includeHarnessIdentity:\s*false') {
+            Did 'system-prompt 覆盖已存在'
+        } elseif ($DryRun) {
+            Did '（DryRun：将追加 system-prompt 覆盖）'
+        } else {
+            $stamp2 = Get-Date -Format 'yyyyMMdd-HHmmss'
+            $backupDir2 = Join-Path $projectRoot "backup\apply-$stamp2"
+            New-Item -ItemType Directory -Force -Path $backupDir2 | Out-Null
+            Copy-Item -LiteralPath $patchFile -Destination (Join-Path $backupDir2 'cordis.patch.yml') -Force
+            Set-Content -LiteralPath $patchFile -Value ($patch.TrimEnd() + "`r`n`r`n" + $SYSTEM_PROMPT_BLOCK + "`r`n") -Encoding utf8NoBOM
+            Did '追加 system-prompt 覆盖'
+        }
+    }
     Write-Host ''
 }
 
@@ -363,11 +381,13 @@ if (Test-Path -LiteralPath $injectFile) {
 $hostProc = @(Get-CimInstance Win32_Process -Filter "Name='DeepSeek Harness.exe'" -ErrorAction SilentlyContinue |
     Where-Object { $_.CommandLine -and $_.CommandLine -notmatch '--type=' } | Sort-Object CreationDate | Select-Object -First 1)
 $needRestart = $false
-if ($hostProc -and $layout -ne 'none') {
+if ($hostProc -and $layout -ne 'none' -and $ProfileName -eq 'desktop') {
     $started = $hostProc.CreationDate
     $newest = @(Get-ChildItem -LiteralPath $activeRoot -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1)[0].LastWriteTime
     $needRestart = $started -lt $newest
     Check-Assert '插件已加载（文件早于宿主启动）' (-not $needRestart) ("host={0:HH:mm:ss} plugin={1:HH:mm:ss}" -f $started, $newest)
+} elseif ($ProfileName -ne 'desktop') {
+    Info "profile '$ProfileName' 不是当前运行的桌面端 profile：跳过“是否已加载”检查"
 }
 
 if ($layout -ne 'none' -and (Test-Path -LiteralPath (Join-Path $activeRoot 'index.mjs'))) {

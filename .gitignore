@@ -3,3 +3,6 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# 本机运维记录（状态/备份/待办），不随仓库发布
+LOCAL-NOTES.md
