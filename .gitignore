@@ -6,3 +6,5 @@ Thumbs.db
 
 # 本机运维记录（状态/备份/待办），不随仓库发布
 LOCAL-NOTES.md
+# 本机专用卸载脚本（还原 dsh-purge 残留 + 删解包副本），对仓库使用者无意义
+tools/uninstall.ps1
