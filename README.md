@@ -24,17 +24,21 @@
 **插件管理器**（桌面端 / Web 端「插件 → 添加插件」）
 
 ```
-github:cwen63970-coder/dsh-jailbreak
+https://github.com/cwen63970-coder/dsh-jailbreak.git
 ```
 
 **命令行**
 
 ```powershell
-dsh plugin --profile desktop add "github:cwen63970-coder/dsh-jailbreak"
+# 桌面端
+dsh plugin --profile desktop add "https://github.com/cwen63970-coder/dsh-jailbreak.git"
+
+# Web 端
+dsh plugin --profile web add "https://github.com/cwen63970-coder/dsh-jailbreak.git"
 ```
 
-管理器会把包放进 `profiles/<profile>/node_modules/dsh-jailbreak`，并把 `dsh-jailbreak`
-写进该 profile 的 `dsh.profile.bundles`。只 `pnpm add` 不进 bundles 的话不会加载。
+`--profile` 填实际的 profile 名（`desktop` / `web`）；管理器会把包放进 `profiles/<profile>/node_modules/dsh-jailbreak`，
+并把 `dsh-jailbreak` 写进该 profile 的 `dsh.profile.bundles`。只 `pnpm add` 不进 bundles 的话不会加载。
 
 **不用 pnpm 的本地安装**
 

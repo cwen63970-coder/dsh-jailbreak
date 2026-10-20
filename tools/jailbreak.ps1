@@ -250,7 +250,7 @@ if ($Remove) {
 
     Write-Host ''
     Write-Host '本地安装已拆。要改用插件管理器版本，在「插件 → 添加插件」里填：' -ForegroundColor Yellow
-    Write-Host '  github:cwen63970-coder/dsh-jailbreak' -ForegroundColor Yellow
+    Write-Host '  https://github.com/cwen63970-coder/dsh-jailbreak.git' -ForegroundColor Yellow
     Write-Host '装完重启 DSH。system-prompt 覆盖保留在 profile 里，不影响管理器版本。' -ForegroundColor Yellow
     exit 0
 }
