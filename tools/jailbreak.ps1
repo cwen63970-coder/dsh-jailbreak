@@ -383,9 +383,13 @@ $hostProc = @(Get-CimInstance Win32_Process -Filter "Name='DeepSeek Harness.exe'
 $needRestart = $false
 if ($hostProc -and $layout -ne 'none' -and $ProfileName -eq 'desktop') {
     $started = $hostProc.CreationDate
-    $newest = @(Get-ChildItem -LiteralPath $activeRoot -File | Sort-Object LastWriteTime -Descending | Select-Object -First 1)[0].LastWriteTime
+    # 判据取三处最新时间：插件文件、profile 的 package.json（bundles 改动）、cordis.patch.yml
+    $candidates = @()
+    $candidates += @(Get-ChildItem -LiteralPath $activeRoot -File | Select-Object -ExpandProperty LastWriteTime)
+    foreach ($f in @($profilePkg, $patchFile)) { if (Test-Path -LiteralPath $f) { $candidates += (Get-Item -LiteralPath $f).LastWriteTime } }
+    $newest = ($candidates | Sort-Object -Descending | Select-Object -First 1)
     $needRestart = $started -lt $newest
-    Check-Assert '插件已加载（文件早于宿主启动）' (-not $needRestart) ("host={0:HH:mm:ss} plugin={1:HH:mm:ss}" -f $started, $newest)
+    Check-Assert '插件已加载（配置早于宿主启动）' (-not $needRestart) ("host={0:HH:mm:ss} 最新配置={1:HH:mm:ss}" -f $started, $newest)
 } elseif ($ProfileName -ne 'desktop') {
     Info "profile '$ProfileName' 不是当前运行的桌面端 profile：跳过“是否已加载”检查"
 }
