@@ -1,0 +1,25 @@
+# dsh-jailbreak 的 bundle 层补丁。
+#
+# 只做两件事：
+#   1. 关掉宿主自带的身份段与 persona 前后缀（assemble 时插件也会再兜一层）；
+#   2. 把自己插进 profile 树。
+#
+# 注意：bundle 补丁只作用于本 bundle 自己的 entry 树，看不到别的 bundle 与用户层。
+# 需要覆盖全局行时，写进 profiles/<name>/cordis.patch.yml，不要写这里。
+
+- id: system-prompt
+  config:
+    includeHarnessIdentity: false
+    personaPrefix: ""
+    personaSuffix: ""
+
+- insert:
+    - id: dsh-jailbreak
+      name: 'dsh-jailbreak'
+      config:
+        enabled: true
+        file: ''
+        stripMnemon: true
+        dropWorkspaceBaseline: true
+        capabilityProtocol: true
+        verbose: false
